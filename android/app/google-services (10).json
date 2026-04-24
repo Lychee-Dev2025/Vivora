@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "717741417086",
+    "project_id": "vivora-8f946",
+    "storage_bucket": "vivora-8f946.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:717741417086:android:b93b80bb494ecf15ab6e2f",
+        "android_client_info": {
+          "package_name": "com.example.vivora"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-rrUxP0POgx9w2nHEKEnVPO99E3jR99c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
