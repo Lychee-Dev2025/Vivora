@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/utils/friendly_error.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../core/routes/app_routes.dart';
@@ -120,16 +121,17 @@ class _FirstTimeSetupScreenState extends State<FirstTimeSetupScreen> {
         await _profileService.saveUserProfile(profile);
 
         if (mounted) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            AppRoutes.mainNavigation,
-            (route) => false,
-          );
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil(AppRoutes.mainNavigation, (route) => false);
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving profile: $e')),
+          SnackBar(
+            content: Text(friendlyError(e, action: 'save your profile')),
+          ),
         );
       }
     } finally {
@@ -171,15 +173,16 @@ class _FirstTimeSetupScreenState extends State<FirstTimeSetupScreen> {
                       },
                     ),
                     RoutineProfileStep(
-                      onContinue: (wake, sleep, study, pref, screen, challenge) {
-                        _wakeUpTime = wake;
-                        _sleepTime = sleep;
-                        _averageStudyHours = study;
-                        _preferredStudyTime = pref;
-                        _currentScreenTimeEstimate = screen;
-                        _mainDailyChallenge = challenge;
-                        _nextStep();
-                      },
+                      onContinue:
+                          (wake, sleep, study, pref, screen, challenge) {
+                            _wakeUpTime = wake;
+                            _sleepTime = sleep;
+                            _averageStudyHours = study;
+                            _preferredStudyTime = pref;
+                            _currentScreenTimeEstimate = screen;
+                            _mainDailyChallenge = challenge;
+                            _nextStep();
+                          },
                     ),
                     GoalsStep(
                       onContinue: (sleep, study, focus, screen, type) {

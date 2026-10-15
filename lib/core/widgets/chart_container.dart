@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 class ChartContainer extends StatelessWidget {
   final String title;
   final String? subtitle;
   final Widget child;
-  final double height;
+
+  /// Fixed chart height, or null to let the child size itself (e.g. a chart
+  /// with a legend below it).
+  final double? height;
 
   const ChartContainer({
     super.key,
@@ -21,11 +24,12 @@ class ChartContainer extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: context.palette.surface,
+        border: Border.all(color: context.palette.border),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.shadowColor,
+            color: context.palette.shadow,
             blurRadius: 20,
             offset: Offset(0, 10),
           ),
@@ -37,46 +41,46 @@ class ChartContainer extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.darkText,
-                        ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      subtitle!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.lightText,
-                          ),
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: context.palette.textPrimary,
+                      ),
                     ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.palette.textSecondary,
+                        ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
+              const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withOpacity(0.1),
+                  color: context.brand.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.insights_rounded,
-                  color: AppColors.primaryBlue,
+                  color: context.brand,
                   size: 18,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
-          SizedBox(
-            height: height,
-            child: child,
-          ),
+          const SizedBox(height: 20),
+          if (height == null) child else SizedBox(height: height, child: child),
         ],
       ),
     );

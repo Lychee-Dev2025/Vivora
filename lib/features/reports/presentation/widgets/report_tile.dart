@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_card.dart';
 
 class ReportTile extends StatelessWidget {
@@ -51,7 +51,7 @@ class ReportTile extends StatelessWidget {
                 Text(
                   trend,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.primaryBlue,
+                    color: context.brand,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -62,14 +62,14 @@ class ReportTile extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primaryBlue.withValues(alpha: 0.1),
+              color: context.brand.withValues(alpha: 0.1),
             ),
             child: IconButton(
               onPressed: onView,
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 18,
-                color: AppColors.primaryBlue,
+                color: context.brand,
               ),
             ),
           ),

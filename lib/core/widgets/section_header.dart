@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
@@ -39,7 +38,7 @@ class SectionHeader extends StatelessWidget {
             child: Text(
               actionLabel!,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: AppColors.primaryBlue,
+                color: context.brand,
                 fontWeight: FontWeight.w700,
               ),
             ),

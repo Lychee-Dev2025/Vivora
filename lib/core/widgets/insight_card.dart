@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import '../theme/app_colors.dart';
 
 class InsightCard extends StatelessWidget {
@@ -22,14 +23,14 @@ class InsightCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.primaryBlue.withOpacity(0.9),
-            AppColors.softPurple.withOpacity(0.9),
+            context.brand.withValues(alpha: 0.9),
+            AppColors.softPurple.withValues(alpha: 0.9),
           ],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withOpacity(0.3),
+            color: context.brand.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

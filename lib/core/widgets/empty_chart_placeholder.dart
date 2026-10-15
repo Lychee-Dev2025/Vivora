@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 class EmptyChartPlaceholder extends StatelessWidget {
   const EmptyChartPlaceholder({
@@ -20,7 +19,7 @@ class EmptyChartPlaceholder extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: const Color(0xFFF2F7FF),
+        color: context.palette.surfaceMuted,
       ),
       padding: const EdgeInsets.all(14),
       child: Column(
@@ -28,9 +27,9 @@ class EmptyChartPlaceholder extends StatelessWidget {
         children: <Widget>[
           Text(
             label,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.lightText),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: context.palette.textSecondary,
+            ),
           ),
           const SizedBox(height: 12),
           Expanded(
@@ -58,7 +57,7 @@ class EmptyChartPlaceholder extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
-                                  gradient: AppColors.highlightGradient,
+                                  gradient: context.palette.highlightGradient,
                                 ),
                               ),
                             );

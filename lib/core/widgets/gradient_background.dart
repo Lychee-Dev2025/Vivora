@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 class GradientBackground extends StatelessWidget {
   const GradientBackground({
@@ -22,7 +21,7 @@ class GradientBackground extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        gradient: gradient ?? AppColors.onboardingGradient,
+        gradient: gradient ?? context.palette.backgroundGradient,
       ),
       child: useSafeArea ? SafeArea(child: content) : content,
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../first_time_setup/data/services/user_profile_service.dart';
@@ -55,7 +56,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: GradientBackground(
-        gradient: AppColors.onboardingGradient,
+        gradient: context.palette.backgroundGradient,
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
@@ -73,11 +74,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: AppColors.white.withValues(alpha: 0.84),
+                      color: context.palette.surface.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(26),
-                      boxShadow: const <BoxShadow>[
+                      boxShadow: <BoxShadow>[
                         BoxShadow(
-                          color: AppColors.shadowColor,
+                          color: context.palette.shadow,
                           blurRadius: 26,
                           offset: Offset(0, 12),
                         ),
@@ -124,7 +125,7 @@ class _AuthModeToggle extends StatelessWidget {
     return Container(
       height: 52,
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F5FF),
+        color: context.palette.surfaceMuted,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Stack(
@@ -155,7 +156,9 @@ class _AuthModeToggle extends StatelessWidget {
                     child: Text(
                       'Login',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: isLogin ? AppColors.white : AppColors.darkText,
+                        color: isLogin
+                            ? AppColors.white
+                            : context.palette.textPrimary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -170,7 +173,9 @@ class _AuthModeToggle extends StatelessWidget {
                     child: Text(
                       'Sign Up',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: isLogin ? AppColors.darkText : AppColors.white,
+                        color: isLogin
+                            ? context.palette.textPrimary
+                            : AppColors.white,
                         fontWeight: FontWeight.w700,
                       ),
                     ),

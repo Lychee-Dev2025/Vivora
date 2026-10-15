@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import 'primary_button.dart';
 
 class ReportCard extends StatelessWidget {
@@ -21,11 +21,12 @@ class ReportCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: context.palette.surface,
+        border: Border.all(color: context.palette.border),
         borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.shadowColor,
+            color: context.palette.shadow,
             blurRadius: 20,
             offset: Offset(0, 10),
           ),
@@ -37,51 +38,53 @@ class ReportCard extends StatelessWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.darkText,
-                ),
+              fontWeight: FontWeight.w800,
+              color: context.palette.textPrimary,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             description,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.lightText,
-                  height: 1.4,
-                ),
+              color: context.palette.textSecondary,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 20),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: quickStats.map((stat) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    stat['value'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.primaryBlue,
+              // Each stat gets an equal share and may wrap, so a long value
+              // such as "Needs Improvement" cannot overflow the row.
+              return Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      stat['value'] ?? '',
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: context.brand,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    stat['label'] ?? '',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.lightText,
+                    const SizedBox(height: 4),
+                    Text(
+                      stat['label'] ?? '',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: context.palette.textSecondary,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             }).toList(),
           ),
           const SizedBox(height: 24),
-          PrimaryButton(
-            label: 'View Details',
-            onPressed: onTap,
-          ),
+          PrimaryButton(label: 'View Details', onPressed: onTap),
         ],
       ),
     );

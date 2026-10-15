@@ -1,0 +1,21 @@
+rules_version = '2';
+
+// Vivora: every record lives under users/{uid}. A signed-in user can read and
+// write only their own document and its subcollections (activityLogs and
+// appUsage, dailyLogs, focusSessions, insights, badges, settings).
+// Everything else is denied.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

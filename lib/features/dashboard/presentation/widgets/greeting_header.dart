@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../../../core/theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 class GreetingHeader extends StatelessWidget {
   const GreetingHeader({super.key, required this.name});
@@ -44,13 +43,16 @@ class GreetingHeader extends StatelessWidget {
                 'Good Morning, $name',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: AppColors.darkText,
+                  color: context.palette.textPrimary,
                 ),
               ),
               const SizedBox(height: 6),
-              Text(dateText, style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              )),
+              Text(
+                dateText,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
             ],
           ),
         ),
@@ -59,12 +61,9 @@ class GreetingHeader extends StatelessWidget {
           height: 46,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.primaryBlue.withValues(alpha: 0.13),
+            color: context.brand.withValues(alpha: 0.13),
           ),
-          child: const Icon(
-            Icons.notifications_active_rounded,
-            color: AppColors.primaryBlue,
-          ),
+          child: Icon(Icons.notifications_active_rounded, color: context.brand),
         ),
       ],
     );

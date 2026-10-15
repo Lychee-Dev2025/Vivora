@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import '../../../../core/theme/app_colors.dart';
 
 class ProgressHeader extends StatelessWidget {
@@ -25,7 +26,7 @@ class ProgressHeader extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
                   onPressed: onBack,
-                  color: AppColors.darkText,
+                  color: context.palette.textPrimary,
                 )
               else
                 const SizedBox(width: 48),
@@ -34,10 +35,10 @@ class ProgressHeader extends StatelessWidget {
                   child: Text(
                     'Step ${currentStep + 1} of $totalSteps',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.lightText,
-                          letterSpacing: 1.2,
-                        ),
+                      fontWeight: FontWeight.w700,
+                      color: context.palette.textSecondary,
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
               ),
@@ -52,21 +53,22 @@ class ProgressHeader extends StatelessWidget {
                 Container(
                   height: 6,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                    color: context.brand.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   height: 6,
-                  width: MediaQuery.of(context).size.width *
+                  width:
+                      MediaQuery.of(context).size.width *
                       ((currentStep + 1) / totalSteps),
                   decoration: BoxDecoration(
                     gradient: AppColors.buttonGradient,
                     borderRadius: BorderRadius.circular(3),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                        color: context.brand.withValues(alpha: 0.3),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 import '../../../core/constants/app_assets.dart';
 import '../../../core/routes/app_routes.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/gradient_background.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/secondary_button.dart';
@@ -75,7 +75,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     return Scaffold(
       body: GradientBackground(
-        gradient: AppColors.onboardingGradient,
+        gradient: context.palette.backgroundGradient,
         child: Column(
           children: <Widget>[
             const SizedBox(height: 8),

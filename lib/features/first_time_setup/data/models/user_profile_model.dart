@@ -46,8 +46,12 @@ class UserProfile {
       'goals': goals.toMap(),
       'preferences': preferences.toMap(),
       'setupCompleted': setupCompleted,
-      'profileCompletedAt': profileCompletedAt != null ? Timestamp.fromDate(profileCompletedAt!) : null,
-      'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : FieldValue.serverTimestamp(),
+      'profileCompletedAt': profileCompletedAt != null
+          ? Timestamp.fromDate(profileCompletedAt!)
+          : null,
+      'createdAt': createdAt != null
+          ? Timestamp.fromDate(createdAt!)
+          : FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }

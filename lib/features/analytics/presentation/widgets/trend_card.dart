@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_card.dart';
@@ -21,7 +22,7 @@ class TrendCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color deltaColor = positive
         ? AppColors.accentGreen
-        : Colors.redAccent;
+        : context.palette.danger;
 
     return InfoCard(
       radius: 20,

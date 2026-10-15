@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import '../../../../core/widgets/primary_button.dart';
 
 class SetupSummaryStep extends StatelessWidget {
@@ -34,9 +34,9 @@ class SetupSummaryStep extends StatelessWidget {
             child: Text(
               'Ready to Start?',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.darkText,
-                  ),
+                fontWeight: FontWeight.w800,
+                color: context.palette.textPrimary,
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -45,12 +45,13 @@ class SetupSummaryStep extends StatelessWidget {
             child: Text(
               'Here is a quick summary of your profile.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.lightText,
-                  ),
+                color: context.palette.textSecondary,
+              ),
             ),
           ),
           const SizedBox(height: 30),
           _buildSummaryCard(
+            context,
             title: 'Personal Info',
             items: [
               {'label': 'Name', 'value': fullName},
@@ -61,6 +62,7 @@ class SetupSummaryStep extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildSummaryCard(
+            context,
             title: 'Routine & Challenges',
             items: [
               {'label': 'Main Challenge', 'value': mainChallenge},
@@ -70,6 +72,7 @@ class SetupSummaryStep extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _buildSummaryCard(
+            context,
             title: 'Goals',
             items: [
               {'label': 'Focus Goal', 'value': productivityGoal},
@@ -95,7 +98,7 @@ class SetupSummaryStep extends StatelessWidget {
                 'You can update these anytime in Settings.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.lightText.withValues(alpha: 0.7),
+                  color: context.palette.textSecondary.withValues(alpha: 0.7),
                 ),
               ),
             ),
@@ -105,7 +108,8 @@ class SetupSummaryStep extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCard({
+  Widget _buildSummaryCard(
+    BuildContext context, {
     required String title,
     required List<Map<String, String>> items,
     required VoidCallback onEdit,
@@ -116,12 +120,14 @@ class SetupSummaryStep extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.palette.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.shadowColor.withValues(alpha: 0.1)),
+          border: Border.all(
+            color: context.palette.shadow.withValues(alpha: 0.1),
+          ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor.withValues(alpha: 0.05),
+              color: context.palette.shadow.withValues(alpha: 0.05),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -135,14 +141,14 @@ class SetupSummaryStep extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.darkText,
+                    color: context.palette.textPrimary,
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.edit_note_rounded, color: AppColors.primaryBlue),
+                  icon: Icon(Icons.edit_note_rounded, color: context.brand),
                   onPressed: onEdit,
                   constraints: const BoxConstraints(),
                   padding: EdgeInsets.zero,
@@ -150,26 +156,31 @@ class SetupSummaryStep extends StatelessWidget {
               ],
             ),
             const Divider(height: 24),
-            ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    item['label']!,
-                    style: const TextStyle(fontSize: 13, color: AppColors.lightText),
-                  ),
-                  Text(
-                    item['value']!,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkText,
+            ...items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      item['label']!,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: context.palette.textSecondary,
+                      ),
                     ),
-                  ),
-                ],
+                    Text(
+                      item['value']!,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: context.palette.textPrimary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            )).toList(),
+            ),
           ],
         ),
       ),

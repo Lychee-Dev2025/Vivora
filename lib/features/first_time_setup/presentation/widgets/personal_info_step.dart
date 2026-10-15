@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
 
@@ -18,17 +18,23 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
   final _nameController = TextEditingController();
   final _institutionController = TextEditingController();
   final _fieldOfStudyController = TextEditingController();
-  
+
   String _ageRange = '18-22';
   String _academicLevel = 'Undergraduate';
 
-  final List<String> _ageRanges = ['Under 18', '18-22', '23-26', '27-30', '30+'];
+  final List<String> _ageRanges = [
+    'Under 18',
+    '18-22',
+    '23-26',
+    '27-30',
+    '30+',
+  ];
   final List<String> _academicLevels = [
     'High School',
     'Undergraduate',
     'Postgraduate',
     'Doctorate',
-    'Other'
+    'Other',
   ];
 
   @override
@@ -52,9 +58,9 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
               child: Text(
                 'Tell us about yourself',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.darkText,
-                    ),
+                  fontWeight: FontWeight.w800,
+                  color: context.palette.textPrimary,
+                ),
               ),
             ),
             const SizedBox(height: 10),
@@ -63,8 +69,8 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
               child: Text(
                 'Help us categorize your productivity metrics.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.lightText,
-                    ),
+                  color: context.palette.textSecondary,
+                ),
               ),
             ),
             const SizedBox(height: 30),
@@ -103,8 +109,8 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
               delay: const Duration(milliseconds: 500),
               child: CustomTextField(
                 controller: _institutionController,
-                label: 'University / Institution',
-                hint: 'Enter your university (optional)',
+                label: 'University / Institution (optional)',
+                hint: 'Your university',
               ),
             ),
             const SizedBox(height: 20),
@@ -112,8 +118,8 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
               delay: const Duration(milliseconds: 600),
               child: CustomTextField(
                 controller: _fieldOfStudyController,
-                label: 'Field of Study',
-                hint: 'e.g. Computer Science (optional)',
+                label: 'Field of Study (optional)',
+                hint: 'e.g. Computer Science',
               ),
             ),
             const SizedBox(height: 40),
@@ -151,22 +157,24 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w700,
-            color: AppColors.darkText,
+            color: context.palette.textPrimary,
           ),
         ),
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: AppColors.white,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.shadowColor.withValues(alpha: 0.1)),
+            border: Border.all(
+              color: context.palette.shadow.withValues(alpha: 0.1),
+            ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.shadowColor.withValues(alpha: 0.05),
+                color: context.palette.shadow.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -176,13 +184,17 @@ class _PersonalInfoStepState extends State<PersonalInfoStep> {
             child: DropdownButton<String>(
               value: value,
               isExpanded: true,
-              icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                  color: AppColors.primaryBlue),
+              icon: Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: context.brand,
+              ),
               items: items.map((String item) {
                 return DropdownMenuItem<String>(
                   value: item,
-                  child: Text(item,
-                      style: const TextStyle(color: AppColors.darkText)),
+                  child: Text(
+                    item,
+                    style: TextStyle(color: context.palette.textPrimary),
+                  ),
                 );
               }).toList(),
               onChanged: onChanged,

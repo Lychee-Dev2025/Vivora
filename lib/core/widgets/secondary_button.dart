@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 class SecondaryButton extends StatelessWidget {
   const SecondaryButton({
@@ -20,15 +19,15 @@ class SecondaryButton extends StatelessWidget {
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         minimumSize: Size(expanded ? double.infinity : 96, 54),
-        side: const BorderSide(color: AppColors.primaryBlue, width: 1.5),
+        side: BorderSide(color: context.brand, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: Colors.transparent,
-        foregroundColor: AppColors.primaryBlue,
+        foregroundColor: context.brand,
       ),
       child: Text(
         label,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          color: AppColors.primaryBlue,
+          color: context.brand,
           fontWeight: FontWeight.w700,
         ),
       ),

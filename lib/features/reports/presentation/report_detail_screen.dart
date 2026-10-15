@@ -1,23 +1,30 @@
-import 'package:animate_do/animate_do.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:vivora/core/widgets/ui_kit.dart';
+import 'package:vivora/core/utils/friendly_error.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
+import 'package:vivora/core/widgets/app_bar_title.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/widgets/chart_container.dart';
 import '../../../core/widgets/gradient_background.dart';
-import '../../../core/widgets/insight_card.dart';
+import '../../../core/widgets/info_card.dart';
 import '../../../core/widgets/section_header.dart';
 import '../../../core/widgets/stat_card.dart';
 import '../../../core/widgets/summary_tile.dart';
-import 'package:vivora/features/analytics/data/dummy_analytics_provider.dart';
-import 'package:vivora/features/analytics/presentation/widgets/productivity_charts.dart';
+import '../../activity_monitoring/data/models/activity_date_utils.dart';
+import '../../activity_monitoring/data/models/app_usage_entry.dart';
+import '../../activity_monitoring/data/models/daily_activity_log.dart';
+import '../../activity_monitoring/data/repositories/activity_repository.dart';
+import '../../productivity_scoring/data/models/productivity_models.dart';
 import '../../productivity_scoring/data/services/productivity_repository.dart';
 
+/// Full report for one day: the saved score with its components, the logged
+/// inputs and the measured device data for the same local date.
 class ReportDetailScreen extends StatefulWidget {
-  const ReportDetailScreen({super.key, required this.title});
+  const ReportDetailScreen({super.key, required this.dayKey});
 
-  final String title;
+  /// `yyyy-MM-dd`.
+  final String dayKey;
 
   @override
   State<ReportDetailScreen> createState() => _ReportDetailScreenState();
@@ -25,308 +32,377 @@ class ReportDetailScreen extends StatefulWidget {
 
 class _ReportDetailScreenState extends State<ReportDetailScreen> {
   final _repository = ProductivityRepository();
-  Map<String, dynamic>? _realLog;
+  final _activityRepository = ActivityRepository();
+
+  SavedDailyScore? _score;
+  DailyActivityLog? _activity;
+  List<AppUsageEntry> _apps = const <AppUsageEntry>[];
+  bool _loading = true;
+  String? _error;
+
+  DateTime? get _date => ActivityDateUtils.parseKey(widget.dayKey);
 
   @override
   void initState() {
     super.initState();
-    if (widget.title.startsWith('Daily Report')) {
-      _loadRealLog();
-    }
+    _load();
   }
 
-  Future<void> _loadRealLog() async {
+  Future<void> _load() async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final parts = widget.title.split(' - ');
-      if (parts.length > 1) {
-        final dateParts = parts[1].split('/');
-        if (dateParts.length == 3) {
-          final date = DateTime(
-            int.parse(dateParts[2]),
-            int.parse(dateParts[1]),
-            int.parse(dateParts[0]),
-          );
-          
-          final allLogs = await _repository.getWeeklyLogs(user.uid);
-          final match = allLogs.firstWhere(
-            (l) {
-              final d = (l['date'] as Timestamp).toDate();
-              return d.year == date.year && d.month == date.month && d.day == date.day;
-            },
-            orElse: () => {},
-          );
-          
-          if (mounted && match.isNotEmpty) {
-            setState(() {
-              _realLog = match;
-            });
-          }
-        }
+    final DateTime? date = _date;
+    if (user == null || date == null) {
+      setState(() {
+        _loading = false;
+        _error = 'Report not available.';
+      });
+      return;
+    }
+    try {
+      final score = await _repository
+          .getDailyScore(user.uid, date)
+          .timeout(const Duration(seconds: 10));
+      final activity = await _activityRepository
+          .getDailyActivityLog(uid: user.uid, date: date)
+          .timeout(const Duration(seconds: 10));
+      final apps = activity == null
+          ? const <AppUsageEntry>[]
+          : await _activityRepository
+                .getDailyAppUsage(
+                  uid: user.uid,
+                  date: date,
+                  captureId: activity.captureId,
+                )
+                .timeout(const Duration(seconds: 10));
+      if (!mounted) return;
+      setState(() {
+        _score = score;
+        _activity = activity;
+        _apps = apps;
+      });
+    } catch (error) {
+      if (mounted) {
+        setState(
+          () => _error = friendlyError(error, action: 'load this report'),
+        );
       }
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_realLog != null) {
-      return _buildRealReportView(_realLog!);
-    }
-
-    final report = DummyAnalyticsProvider.reports.firstWhere(
-      (r) => r.title == widget.title,
-      orElse: () => DummyAnalyticsProvider.reports.first,
+    return ReportDetailView(
+      dayKey: widget.dayKey,
+      score: _score,
+      activity: _activity,
+      apps: _apps,
+      loading: _loading,
+      error: _error,
+      onRetry: () {
+        setState(() {
+          _error = null;
+          _loading = true;
+        });
+        _load();
+      },
     );
+  }
+}
 
+/// The Daily Report layout, driven entirely by its parameters.
+class ReportDetailView extends StatelessWidget {
+  const ReportDetailView({
+    super.key,
+    required this.dayKey,
+    required this.score,
+    required this.activity,
+    this.apps = const <AppUsageEntry>[],
+    this.loading = false,
+    this.error,
+    this.onRetry,
+  });
+
+  final String dayKey;
+  final SavedDailyScore? score;
+  final DailyActivityLog? activity;
+  final List<AppUsageEntry> apps;
+  final bool loading;
+  final String? error;
+  final VoidCallback? onRetry;
+
+  DateTime? get _date => ActivityDateUtils.parseKey(dayKey);
+
+  @override
+  Widget build(BuildContext context) {
+    // The AppBar keeps a short title; the full date is a heading in the body,
+    // where it can wrap instead of being cut off ("Daily Report · Thu 1…").
+    const String title = 'Daily Report';
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const AppBarTitle(title),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.darkText),
+        iconTheme: IconThemeData(color: context.palette.textPrimary),
       ),
-      extendBodyBehindAppBar: true,
       body: GradientBackground(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, kToolbarHeight + 40, 20, 30),
+        child: loading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 30),
+                children: _buildContent(context),
+              ),
+      ),
+    );
+  }
+
+  List<Widget> _buildContent(BuildContext context) {
+    if (error != null) {
+      return <Widget>[StateMessage.error(message: error!, onAction: onRetry)];
+    }
+    final SavedDailyScore? score = this.score;
+    final DailyActivityLog? activity = this.activity;
+    if (score == null && activity == null) {
+      return <Widget>[
+        Text(
+          'No records for this day.',
+          style: TextStyle(color: context.palette.textSecondary),
+        ),
+      ];
+    }
+    String hours(double? h) =>
+        h == null ? 'Not recorded' : formatMinutes((h * 60).round());
+
+    final DateTime? date = _date;
+    return <Widget>[
+      if (date != null) ...[
+        Text(
+          _longDate(date),
+          softWrap: true,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: context.palette.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 4),
+      ],
+      if (score != null) ...[
+        Text(
+          score.overallScore == null
+              ? 'No score'
+              : 'Score ${score.overallScore!.round()} · ${score.performanceLevel ?? ''}',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: context.palette.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          score.feedbackMessage ?? '',
+          style: TextStyle(color: context.palette.textSecondary),
+        ),
+        if (score.missingComponents.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Text(
+            'Not recorded (excluded from the score): ${score.missingComponents.join(', ')}.',
+            style: TextStyle(
+              color: context.palette.textSecondary,
+              fontSize: 12,
+            ),
+          ),
+        ],
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Score Components'),
+        const SizedBox(height: 12),
+        InfoCard(
+          child: Column(
+            children: <Widget>[
+              for (final entry in <(String, String)>[
+                ('Focus (30%)', 'focus'),
+                ('Sleep (20%)', 'sleep'),
+                ('Consistency (20%)', 'consistency'),
+                ('Physical activity (15%)', 'activity'),
+                ('Low distraction (15%)', 'lowDistraction'),
+              ])
+                _row(
+                  context,
+                  entry.$1,
+                  score.componentScores[entry.$2] == null
+                      ? 'Not recorded'
+                      : '${score.componentScores[entry.$2]!.round()}/100',
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Logged Inputs'),
+        const SizedBox(height: 12),
+        InfoCard(
+          child: Column(
+            children: <Widget>[
+              _row(context, 'Sleep', hours(score.log.actualSleepHours)),
+              _row(context, 'Study', hours(score.log.actualStudyHours)),
+              _row(context, 'Deep focus', hours(score.log.actualFocusHours)),
+              _row(
+                context,
+                score.log.screenTimeFromDevice
+                    ? 'Logged screen time (prefilled from device)'
+                    : 'Logged screen time',
+                hours(score.log.actualScreenTimeHours),
+              ),
+              _row(
+                context,
+                'Consistency',
+                score.log.consistencyScore == null
+                    ? 'Not recorded'
+                    : '${score.log.consistencyScore!.round()}%',
+              ),
+              _row(
+                context,
+                'Physical activity',
+                score.log.activityScore == null
+                    ? 'Not rated'
+                    : '${score.log.activityScore!.round()}%',
+              ),
+            ],
+          ),
+        ),
+      ],
+      if (activity != null) ...[
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Measured on Device'),
+        const SizedBox(height: 12),
+        ResponsiveCardGrid(
+          children: <Widget>[
+            StatCard(
+              title: 'Measured App Usage',
+              value: activity.appUsageMinutes == null
+                  ? '--'
+                  : formatMinutes(activity.appUsageMinutes!),
+              icon: Icons.phone_iphone_rounded,
+            ),
+            if (activity.screenTimeMinutes != null)
+              StatCard(
+                title: 'Screen Unlocked',
+                value: formatMinutes(activity.screenTimeMinutes!),
+                icon: Icons.smartphone_rounded,
+                iconColor: AppColors.softPurple,
+              ),
+            StatCard(
+              title: 'Unlocks',
+              value: activity.phoneUnlockCount?.toString() ?? '--',
+              icon: Icons.lock_open_rounded,
+              iconColor: AppColors.accentGreen,
+            ),
+          ],
+        ),
+        if (score?.log.actualScreenTimeHours != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            'Logged screen time is entered by you (it can be prefilled from the '
+            'device when you log). Measured app usage comes from Android activity '
+            'tracking and keeps growing during the day, so the two can differ. '
+            'The Low Distraction score uses the logged value.',
+            style: TextStyle(
+              color: context.palette.textSecondary,
+              fontSize: 12,
+            ),
+          ),
+        ],
+        if (apps.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          const SectionHeader(title: 'Apps Used'),
+          const SizedBox(height: 12),
+          InfoCard(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                FadeInDown(
-                  duration: const Duration(milliseconds: 500),
-                  child: Text(
-                    report.title,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.darkText,
-                        ),
+                for (int i = 0; i < apps.length && i < 8; i++) ...[
+                  if (i > 0) const Divider(height: 20),
+                  UsageRow(
+                    label: apps[i].displayName,
+                    subtitle: apps[i].category.label,
+                    value: apps[i].durationLabel,
                   ),
-                ),
-                const SizedBox(height: 8),
-                FadeInDown(
-                  duration: const Duration(milliseconds: 500),
-                  delay: const Duration(milliseconds: 100),
-                  child: Text(
-                    report.summary,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.lightText,
-                        ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const SectionHeader(
-                  title: 'Key Statistics',
-                  subtitle: 'Quick performance overview',
-                ),
-                const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    mainAxisExtent: 130,
-                  ),
-                  itemCount: report.stats.length,
-                  itemBuilder: (context, index) {
-                    final key = report.stats.keys.elementAt(index);
-                    final value = report.stats[key]!;
-                    return FadeInUp(
-                      duration: const Duration(milliseconds: 500),
-                      delay: Duration(milliseconds: 200 + (index * 100)),
-                      child: StatCard(
-                        title: key,
-                        value: value,
-                        icon: _getIconForStat(key),
-                        iconColor: _getColorForStat(index),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-                FadeInUp(
-                  duration: const Duration(milliseconds: 600),
-                  delay: const Duration(milliseconds: 400),
-                  child: ChartContainer(
-                    title: 'Focus Trend',
-                    subtitle: 'Performance over time',
-                    child: WeeklyProductivityChart(data: report.trendData),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const SectionHeader(
-                  title: 'Top Used Apps',
-                  subtitle: 'App usage breakdown',
-                ),
-                const SizedBox(height: 12),
-                ...report.topApps.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final app = entry.value;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
-                      child: FadeInUp(
-                        duration: const Duration(milliseconds: 500),
-                        delay: Duration(milliseconds: 500 + (index.toInt() * 100)),
-                        child: SummaryTile(
-                        label: app.appName,
-                        value: app.timeSpent,
-                        icon: Icons.apps_rounded,
-                      ),
-                    ),
-                  );
-                }),
-                const SizedBox(height: 24),
-                FadeInUp(
-                  duration: const Duration(milliseconds: 600),
-                  delay: const Duration(milliseconds: 700),
-                  child: InsightCard(
-                    title: 'Performance Summary',
-                    insight: report.performanceSummary,
-                    icon: Icons.assignment_turned_in_rounded,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRealReportView(Map<String, dynamic> log) {
-    final stats = {
-      'Overall Score': '${(log['overallScore'] ?? 0).toInt()}%',
-      'Performance': log['performanceLevel'] ?? 'Medium',
-      'Focus Hours': '${(log['actualFocusHours'] ?? 0).toStringAsFixed(1)}h',
-      'Sleep Hours': '${(log['actualSleepHours'] ?? 0).toStringAsFixed(1)}h',
-      'Screen Time': '${(log['actualScreenTimeHours'] ?? 0).toStringAsFixed(1)}h',
-      'Consistency': '${(log['consistencyScore'] ?? 0).toInt()}%',
-    };
-
-    final suggestions = List<String>.from(log['suggestions'] ?? []);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: AppColors.darkText),
-      ),
-      extendBodyBehindAppBar: true,
-      body: GradientBackground(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, kToolbarHeight + 40, 20, 30),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FadeInDown(
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.darkText),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                FadeInDown(
-                  delay: const Duration(milliseconds: 100),
-                  child: Text(
-                    log['feedbackMessage'] ?? 'Details for your daily performance.',
-                    style: const TextStyle(color: AppColors.lightText, fontSize: 16),
-                  ),
-                ),
-                const SizedBox(height: 30),
-                const SectionHeader(title: 'Detailed Metrics'),
-                const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    mainAxisExtent: 130,
-                  ),
-                  itemCount: stats.length,
-                  itemBuilder: (context, index) {
-                    final key = stats.keys.elementAt(index);
-                    final value = stats[key]!;
-                    return FadeInUp(
-                      delay: Duration(milliseconds: 200 + (index * 50)),
-                      child: StatCard(
-                        title: key,
-                        value: value,
-                        icon: _getIconForStat(key),
-                        iconColor: _getColorForStat(index),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 30),
-                if (suggestions.isNotEmpty) ...[
-                  const SectionHeader(title: 'Personalized Suggestions'),
-                  const SizedBox(height: 12),
-                  ...suggestions.asMap().entries.map((entry) => FadeInUp(
-                    delay: Duration(milliseconds: 500 + (entry.key * 100)),
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.primaryBlue.withValues(alpha: 0.1)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.lightbulb_outline_rounded, color: AppColors.primaryBlue),
-                          const SizedBox(width: 12),
-                          Expanded(child: Text(entry.value, style: const TextStyle(fontWeight: FontWeight.w500))),
-                        ],
-                      ),
-                    ),
-                  )),
                 ],
-                const SizedBox(height: 30),
-                FadeInUp(
-                  delay: const Duration(milliseconds: 800),
-                  child: InsightCard(
-                    title: 'Final Summary',
-                    insight: "Based on your performance, you are in the '${log['performanceLevel']}' category. Keep pushing towards your goals to reach 'Excellent'!",
-                    icon: Icons.auto_awesome_rounded,
-                  ),
-                ),
               ],
             ),
           ),
-        ),
+        ],
+      ],
+      if (score != null && score.suggestions.isNotEmpty) ...[
+        const SizedBox(height: 20),
+        const SectionHeader(title: 'Suggestions'),
+        const SizedBox(height: 12),
+        for (final String suggestion in score.suggestions)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: InfoCard(
+              child: Row(
+                children: <Widget>[
+                  Icon(Icons.lightbulb_outline_rounded, color: context.brand),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(suggestion)),
+                ],
+              ),
+            ),
+          ),
+      ],
+    ];
+  }
+
+  static String _longDate(DateTime date) {
+    const List<String> days = <String>[
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+    const List<String> months = <String>[
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+    return '${days[date.weekday - 1]}, ${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+
+  Widget _row(BuildContext context, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(color: context.palette.textSecondary),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
       ),
     );
-  }
-
-  IconData _getIconForStat(String key) {
-    key = key.toLowerCase();
-    if (key.contains('screen')) return Icons.phone_iphone_rounded;
-    if (key.contains('focus')) return Icons.timer_rounded;
-    if (key.contains('sleep')) return Icons.nightlight_round;
-    if (key.contains('score') || key.contains('performance')) {
-      return Icons.trending_up_rounded;
-    }
-    if (key.contains('consistency')) return Icons.repeat_rounded;
-    return Icons.insights_rounded;
-  }
-
-  Color _getColorForStat(int index) {
-    const colors = [
-      AppColors.primaryBlue,
-      AppColors.softPurple,
-      AppColors.secondaryCyan,
-      AppColors.accentGreen,
-      Colors.orange,
-      Colors.pinkAccent,
-    ];
-    return colors[index % colors.length];
   }
 }

@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/primary_button.dart';
 
@@ -25,7 +26,7 @@ class _GoalsStepState extends State<GoalsStep> {
     'Reduce distractions',
     'Build better habits',
     'Sleep on time',
-    'Be more consistent'
+    'Be more consistent',
   ];
 
   @override
@@ -39,9 +40,9 @@ class _GoalsStepState extends State<GoalsStep> {
             child: Text(
               'Set Your Goals',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.darkText,
-                  ),
+                fontWeight: FontWeight.w800,
+                color: context.palette.textPrimary,
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -50,14 +51,17 @@ class _GoalsStepState extends State<GoalsStep> {
             child: Text(
               'What do you want to achieve with Vivora?',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppColors.lightText,
-                  ),
+                color: context.palette.textSecondary,
+              ),
             ),
           ),
           const SizedBox(height: 30),
           FadeInUp(
             delay: const Duration(milliseconds: 200),
-            child: _buildSliderLabel('Target Sleep Hours', '${_targetSleep.toInt()}h'),
+            child: _buildSliderLabel(
+              'Target Sleep Hours',
+              '${_targetSleep.toInt()}h',
+            ),
           ),
           FadeInUp(
             delay: const Duration(milliseconds: 300),
@@ -66,14 +70,17 @@ class _GoalsStepState extends State<GoalsStep> {
               min: 4,
               max: 12,
               divisions: 8,
-              activeColor: AppColors.primaryBlue,
+              activeColor: context.brand,
               onChanged: (val) => setState(() => _targetSleep = val),
             ),
           ),
           const SizedBox(height: 20),
           FadeInUp(
             delay: const Duration(milliseconds: 400),
-            child: _buildSliderLabel('Target Study Hours', '${_targetStudy.toInt()}h'),
+            child: _buildSliderLabel(
+              'Target Study Hours',
+              '${_targetStudy.toInt()}h',
+            ),
           ),
           FadeInUp(
             delay: const Duration(milliseconds: 500),
@@ -89,7 +96,10 @@ class _GoalsStepState extends State<GoalsStep> {
           const SizedBox(height: 20),
           FadeInUp(
             delay: const Duration(milliseconds: 600),
-            child: _buildSliderLabel('Target Focus Hours', '${_targetFocus.toInt()}h'),
+            child: _buildSliderLabel(
+              'Target Focus Hours',
+              '${_targetFocus.toInt()}h',
+            ),
           ),
           FadeInUp(
             delay: const Duration(milliseconds: 700),
@@ -147,8 +157,22 @@ class _GoalsStepState extends State<GoalsStep> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.darkText)),
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.primaryBlue)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: context.palette.textPrimary,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: context.brand,
+          ),
+        ),
       ],
     );
   }
@@ -162,7 +186,14 @@ class _GoalsStepState extends State<GoalsStep> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.darkText)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: context.palette.textPrimary,
+          ),
+        ),
         const SizedBox(height: 12),
         Wrap(
           spacing: 10,
@@ -173,26 +204,37 @@ class _GoalsStepState extends State<GoalsStep> {
               onTap: () => onSelected(option),
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   gradient: isSelected ? AppColors.buttonGradient : null,
-                  color: isSelected ? null : AppColors.white,
+                  color: isSelected ? null : context.palette.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: isSelected ? null : Border.all(color: AppColors.shadowColor.withValues(alpha: 0.1)),
-                  boxShadow: isSelected ? [
-                    BoxShadow(
-                      color: AppColors.primaryBlue.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ] : null,
+                  border: isSelected
+                      ? null
+                      : Border.all(
+                          color: context.palette.shadow.withValues(alpha: 0.1),
+                        ),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: context.brand.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Text(
                   option,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? AppColors.white : AppColors.darkText,
+                    color: isSelected
+                        ? AppColors.white
+                        : context.palette.textPrimary,
                   ),
                 ),
               ),

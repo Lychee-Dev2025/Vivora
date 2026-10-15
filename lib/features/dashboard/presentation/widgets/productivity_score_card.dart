@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_card.dart';
 
@@ -18,15 +19,17 @@ class ProductivityScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isInitial = score == '--' || score == '0';
+    final bool isInitial = score == '--';
 
     return InfoCard(
-      gradient: isInitial ? AppColors.splashGradient : AppColors.highlightGradient,
+      gradient: isInitial
+          ? context.palette.splashGradient
+          : context.palette.highlightGradient,
       radius: 26,
       boxShadow: [
         BoxShadow(
-          color: isInitial 
-              ? AppColors.primaryBlue.withValues(alpha: 0.3)
+          color: isInitial
+              ? context.brand.withValues(alpha: 0.3)
               : const Color(0x4062D7B0),
           blurRadius: 30,
           spreadRadius: 2,
@@ -41,44 +44,40 @@ class ProductivityScoreCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            'Productivity Score',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.darkText,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    Text(
+                      'Productivity Score',
+                      softWrap: true,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: context.palette.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (!isInitial && level.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          level,
+                          style: TextStyle(
+                            color: context.palette.textPrimary,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
-                        if (!isInitial) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              level,
-                              style: const TextStyle(
-                                color: AppColors.darkText,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                      ),
+                    ],
                     const SizedBox(height: 10),
                     Text(
                       feedback,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.darkText,
+                        color: context.palette.textPrimary,
                         height: 1.4,
                       ),
                     ),
@@ -92,17 +91,24 @@ class ProductivityScoreCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: AppColors.darkText.withValues(alpha: 0.1),
+                    color: context.palette.textPrimary.withValues(alpha: 0.1),
                     width: 2,
                   ),
-                  color: AppColors.darkText.withValues(alpha: 0.05),
+                  color: context.palette.textPrimary.withValues(alpha: 0.05),
                 ),
-                child: Center(
-                  child: Text(
-                    score,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.darkText,
-                      fontWeight: FontWeight.w800,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  // Keeps the number prominent but inside the circle at large
+                  // font sizes ("100" at 1.5x would otherwise spill out).
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      score,
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            color: context.palette.textPrimary,
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
                   ),
                 ),
@@ -114,17 +120,23 @@ class ProductivityScoreCard extends StatelessWidget {
             InkWell(
               onTap: onLogTap,
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 12,
+                ),
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: AppColors.white,
+                  color: context.palette.surface,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Center(
                   child: Text(
-                    isInitial ? 'Calculate Today\'s Score' : 'Update Today\'s Progress',
-                    style: const TextStyle(
-                      color: AppColors.primaryBlue,
+                    isInitial
+                        ? 'Calculate Today\'s Score'
+                        : 'Update Today\'s Progress',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: context.brand,
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 class InfoCard extends StatelessWidget {
   const InfoCard({
@@ -22,14 +21,17 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: gradient == null ? AppColors.cardBackground : null,
+        color: gradient == null ? context.palette.surface : null,
+        border: gradient == null
+            ? Border.all(color: context.palette.border)
+            : null,
         gradient: gradient,
         borderRadius: BorderRadius.circular(radius),
         boxShadow:
             boxShadow ??
-            const <BoxShadow>[
+            <BoxShadow>[
               BoxShadow(
-                color: AppColors.shadowColor,
+                color: context.palette.shadow,
                 blurRadius: 24,
                 spreadRadius: 0,
                 offset: Offset(0, 10),

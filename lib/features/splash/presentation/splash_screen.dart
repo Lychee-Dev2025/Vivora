@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../first_time_setup/data/services/user_profile_service.dart';
 import '../../../core/constants/app_assets.dart';
 import '../../../core/routes/app_routes.dart';
-import '../../../core/theme/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,19 +19,19 @@ class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   late final AnimationController _entranceController;
   late final AnimationController _continuousController;
-  
+
   late final Animation<double> _logoFade;
   late final Animation<double> _logoScale;
   late final Animation<double> _glowScale;
   late final Animation<double> _glowOpacity;
   late final Animation<double> _floatOffset;
-  
+
   Timer? _navigationTimer;
 
   @override
   void initState() {
     super.initState();
-    
+
     // Entrance animation controller (1.5 seconds)
     _entranceController = AnimationController(
       vsync: this,
@@ -73,16 +73,23 @@ class _SplashScreenState extends State<SplashScreen>
         curve: Curves.easeInOutSine,
       ),
     );
-    
-    _glowOpacity = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween<double>(begin: 0.0, end: 0.4), weight: 50),
-      TweenSequenceItem(tween: Tween<double>(begin: 0.4, end: 0.0), weight: 50),
-    ]).animate(
-      CurvedAnimation(
-        parent: _continuousController,
-        curve: Curves.easeInOutSine,
-      ),
-    );
+
+    _glowOpacity =
+        TweenSequence<double>([
+          TweenSequenceItem(
+            tween: Tween<double>(begin: 0.0, end: 0.4),
+            weight: 50,
+          ),
+          TweenSequenceItem(
+            tween: Tween<double>(begin: 0.4, end: 0.0),
+            weight: 50,
+          ),
+        ]).animate(
+          CurvedAnimation(
+            parent: _continuousController,
+            curve: Curves.easeInOutSine,
+          ),
+        );
 
     // Start animations
     _entranceController.forward().then((_) {
@@ -96,7 +103,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (!mounted) return;
 
       final user = FirebaseAuth.instance.currentUser;
-      
+
       if (user == null) {
         // No user logged in, go to onboarding
         Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
@@ -104,13 +111,27 @@ class _SplashScreenState extends State<SplashScreen>
         // User is logged in, check verification and setup
         if (user.emailVerified) {
           final profileService = UserProfileService();
-          final isSetupCompleted = await profileService.isSetupCompleted(user.uid);
-          
+          bool isSetupCompleted;
+          try {
+            isSetupCompleted = await profileService
+                .isSetupCompleted(user.uid)
+                .timeout(const Duration(seconds: 8));
+          } catch (error) {
+            // Offline with no cached profile: open the app rather than hang
+            // on the splash screen; data screens show their own offline state.
+            debugPrint('Setup check failed, continuing: $error');
+            isSetupCompleted = true;
+          }
+
           if (mounted) {
             if (isSetupCompleted) {
-              Navigator.of(context).pushReplacementNamed(AppRoutes.mainNavigation);
+              Navigator.of(
+                context,
+              ).pushReplacementNamed(AppRoutes.mainNavigation);
             } else {
-              Navigator.of(context).pushReplacementNamed(AppRoutes.firstTimeSetup);
+              Navigator.of(
+                context,
+              ).pushReplacementNamed(AppRoutes.firstTimeSetup);
             }
           }
         } else {
@@ -133,10 +154,13 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(gradient: AppColors.splashGradient),
+        decoration: BoxDecoration(gradient: context.palette.splashGradient),
         child: Center(
           child: AnimatedBuilder(
-            animation: Listenable.merge([_entranceController, _continuousController]),
+            animation: Listenable.merge([
+              _entranceController,
+              _continuousController,
+            ]),
             builder: (context, child) {
               return Stack(
                 alignment: Alignment.center,
@@ -145,7 +169,10 @@ class _SplashScreenState extends State<SplashScreen>
                   Transform.scale(
                     scale: _glowScale.value,
                     child: Opacity(
-                      opacity: _glowOpacity.value * _logoFade.value,
+                      opacity: (_glowOpacity.value * _logoFade.value).clamp(
+                        0.0,
+                        1.0,
+                      ),
                       child: Container(
                         width: 140,
                         height: 140,
@@ -153,7 +180,7 @@ class _SplashScreenState extends State<SplashScreen>
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.primaryBlue.withValues(alpha: 0.3),
+                              color: context.brand.withValues(alpha: 0.3),
                               blurRadius: 40,
                               spreadRadius: 20,
                             ),
@@ -162,7 +189,7 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                   ),
-                  
+
                   // Logo with entrance and floating animations
                   Transform.translate(
                     offset: Offset(0, _floatOffset.value),
@@ -188,4 +215,3 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
-

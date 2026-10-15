@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
+export 'responsive_card_grid.dart';
+
+/// Small metric card: icon, label, value and an optional status line.
+///
+/// The label sits on its own line under the icon (not beside it) and wraps
+/// naturally, so labels such as "App Usage" or "Unlocks" are never cut to
+/// "App …" in a narrow grid cell or at large font sizes. The value scales down
+/// to fit rather than being clipped.
 class StatCard extends StatelessWidget {
   final String title;
   final String value;
@@ -19,14 +27,16 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color color = iconColor ?? context.brand;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: context.palette.surface,
+        border: Border.all(color: context.palette.border),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: AppColors.shadowColor,
+            color: context.palette.shadow,
             blurRadius: 15,
             offset: Offset(0, 8),
           ),
@@ -34,55 +44,46 @@ class StatCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: (iconColor ?? AppColors.primaryBlue).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  color: iconColor ?? AppColors.primaryBlue,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.lightText,
-                        fontWeight: FontWeight.w600,
-                      ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            softWrap: true,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: context.palette.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
           FittedBox(
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: Text(
               value,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.darkText,
-                  ),
+                fontWeight: FontWeight.w800,
+                color: context.palette.textPrimary,
+              ),
             ),
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               subtitle!,
+              softWrap: true,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.accentGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
+                color: context.palette.success,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ],

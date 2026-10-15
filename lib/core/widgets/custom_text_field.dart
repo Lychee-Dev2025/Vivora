@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 class CustomTextField extends StatefulWidget {
   const CustomTextField({
@@ -45,8 +44,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
       validator: widget.validator,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
-        labelText: widget.label,
+        // Label, hint and error may wrap: single-line defaults were cut to
+        // "University / Instit…" with large Android font sizes.
+        label: Text(widget.label, softWrap: true),
         hintText: widget.hint,
+        hintMaxLines: 4,
+        errorMaxLines: 3,
         suffixIcon: widget.isPassword
             ? IconButton(
                 onPressed: () {
@@ -58,7 +61,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   _obscureText
                       ? Icons.visibility_off_rounded
                       : Icons.visibility_rounded,
-                  color: AppColors.lightText,
+                  color: context.palette.textSecondary,
                 ),
               )
             : null,

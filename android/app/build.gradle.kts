@@ -29,6 +29,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -44,6 +45,9 @@ flutter {
     source = "../.."
 }
 dependencies {
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
   // Import the Firebase BoM
   implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
 
@@ -51,6 +55,7 @@ dependencies {
   // TODO: Add the dependencies for Firebase products you want to use
   // When using the BoM, don't specify versions in Firebase dependencies
   implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
 
   // Add the dependencies for any other desired Firebase products

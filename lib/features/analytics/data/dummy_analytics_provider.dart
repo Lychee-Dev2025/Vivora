@@ -53,7 +53,8 @@ class DummyAnalyticsProvider {
         'Efficiency': '88%',
       },
       topApps: topApps,
-      performanceSummary: 'You had a very productive day today! Your deep focus sessions were 15% longer than your average. Keep it up!',
+      performanceSummary:
+          'You had a very productive day today! Your deep focus sessions were 15% longer than your average. Keep it up!',
       trendData: weeklyFocusData,
     ),
     ReportData(
@@ -68,11 +69,16 @@ class DummyAnalyticsProvider {
         'Focus Goal': 'Reached',
       },
       topApps: [
-        AppUsageData(appName: 'VS Code', timeSpent: '18h 45m', percentage: 0.55),
+        AppUsageData(
+          appName: 'VS Code',
+          timeSpent: '18h 45m',
+          percentage: 0.55,
+        ),
         AppUsageData(appName: 'Chrome', timeSpent: '12h 30m', percentage: 0.35),
         AppUsageData(appName: 'Zoom', timeSpent: '4h 15m', percentage: 0.1),
       ],
-      performanceSummary: 'This week you showed great consistency in your morning routine. Your focus peaked on Wednesday and Saturday.',
+      performanceSummary:
+          'This week you showed great consistency in your morning routine. Your focus peaked on Wednesday and Saturday.',
       trendData: weeklyFocusData,
     ),
     ReportData(
@@ -91,7 +97,8 @@ class DummyAnalyticsProvider {
         AppUsageData(appName: 'Chrome', timeSpent: '34h', percentage: 0.3),
         AppUsageData(appName: 'Others', timeSpent: '12h', percentage: 0.1),
       ],
-      performanceSummary: 'A stellar month! You successfully completed 95% of your planned focus sessions. Your sleep pattern is stabilizing.',
+      performanceSummary:
+          'A stellar month! You successfully completed 95% of your planned focus sessions. Your sleep pattern is stabilizing.',
       trendData: weeklyFocusData,
     ),
   ];

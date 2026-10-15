@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
-import '../theme/app_colors.dart';
+import 'word_safe_text.dart';
 
 class QuickActionTile extends StatelessWidget {
   const QuickActionTile({
@@ -26,10 +27,10 @@ class QuickActionTile extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            gradient: AppColors.cardGradient,
-            boxShadow: const <BoxShadow>[
+            gradient: context.palette.cardGradient,
+            boxShadow: <BoxShadow>[
               BoxShadow(
-                color: AppColors.shadowColor,
+                color: context.palette.shadow,
                 blurRadius: 18,
                 offset: Offset(0, 8),
               ),
@@ -38,31 +39,31 @@ class QuickActionTile extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Container(
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: AppColors.primaryBlue.withValues(alpha: 0.14),
+                    color: context.brand.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(icon, color: AppColors.primaryBlue, size: 20),
+                  child: Icon(icon, color: context.brand, size: 20),
                 ),
-                const Spacer(),
-                Text(
+                WordSafeText(
                   title,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: AppColors.darkText,
+                    color: context.palette.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
+                WordSafeText(
                   subtitle,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.lightText),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: context.palette.textSecondary,
+                  ),
                 ),
               ],
             ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 import '../../../../core/services/auth_service.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/widgets/primary_button.dart';
 
@@ -79,7 +79,7 @@ class _AuthFormState extends State<AuthForm> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: context.palette.danger,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -87,12 +87,36 @@ class _AuthFormState extends State<AuthForm> {
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.accentGreen,
-        behavior: SnackBarBehavior.floating,
-      ),
+      SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
     );
+  }
+
+  Future<void> _resendVerification() async {
+    final String result = await _authService.resendVerification(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+    if (!mounted) return;
+    result == 'success'
+        ? _showSuccess(
+            'Verification email sent. Check your inbox and spam folder.',
+          )
+        : _showError(result);
+  }
+
+  Future<void> _forgotPassword() async {
+    final String email = _emailController.text.trim();
+    if (_emailValidator(email) != null) {
+      _showError('Enter your email above first, then tap "Forgot password?".');
+      return;
+    }
+    final String result = await _authService.sendPasswordReset(email);
+    if (!mounted) return;
+    result == 'success'
+        ? _showSuccess(
+            'If an account exists for $email, a reset link has been sent.',
+          )
+        : _showError(result);
   }
 
   Future<void> _submit() async {
@@ -111,10 +135,25 @@ class _AuthFormState extends State<AuthForm> {
         widget.onSuccess();
       } else if (result == 'invalid-email') {
         _showError('Invalid email');
-      } else if (result == 'invalid-password') {
-        _showError('Invalid password');
+      } else if (result == 'invalid-credentials') {
+        _showError('Incorrect email or password.');
       } else if (result == 'email-not-verified') {
-        _showError('Please verify your email before logging in.');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Please verify your email before logging in.',
+              ),
+              backgroundColor: context.palette.danger,
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Resend',
+                textColor: Colors.white,
+                onPressed: _resendVerification,
+              ),
+            ),
+          );
+        }
       } else {
         _showError(result ?? 'An unknown error occurred');
       }
@@ -195,11 +234,20 @@ class _AuthFormState extends State<AuthForm> {
                     ),
                   ),
           ),
-          const SizedBox(height: 22),
+          if (widget.isLogin)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: _isLoading ? null : _forgotPassword,
+                child: const Text('Forgot password?'),
+              ),
+            )
+          else
+            const SizedBox(height: 22),
           PrimaryButton(
             label: widget.isLogin ? 'Login' : 'Create Account',
             isLoading: _isLoading,
-            onPressed: _isLoading ? () {} : _submit,
+            onPressed: _isLoading ? null : _submit,
             icon: widget.isLogin
                 ? Icons.login_rounded
                 : Icons.person_add_alt_1_rounded,
@@ -209,4 +257,3 @@ class _AuthFormState extends State<AuthForm> {
     );
   }
 }
-

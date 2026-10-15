@@ -121,11 +121,11 @@ class AppRoutes {
           begin: const Offset(0, 0.1),
         );
       case reportDetail:
-        final String title = settings.arguments is String
+        final String dayKey = settings.arguments is String
             ? settings.arguments! as String
-            : 'Report';
+            : '';
         return RouteTransitions.slide(
-          page: ReportDetailScreen(title: title),
+          page: ReportDetailScreen(dayKey: dayKey),
           settings: settings,
           begin: const Offset(0, 0.12),
         );

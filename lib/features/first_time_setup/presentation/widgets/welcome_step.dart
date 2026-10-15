@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import '../../../../core/widgets/primary_button.dart';
 
 class WelcomeStep extends StatelessWidget {
@@ -22,13 +22,13 @@ class WelcomeStep extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                  color: context.brand.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.celebration_rounded,
                   size: 80,
-                  color: AppColors.primaryBlue,
+                  color: context.brand,
                 ),
               ),
             ),
@@ -39,9 +39,9 @@ class WelcomeStep extends StatelessWidget {
                 'Let’s Personalize Your Vivora Experience',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.darkText,
-                    ),
+                  fontWeight: FontWeight.w800,
+                  color: context.palette.textPrimary,
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -52,9 +52,9 @@ class WelcomeStep extends StatelessWidget {
                 'We need a few details to build smarter insights, better goals, and more useful recommendations for your daily routine.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.lightText,
-                      height: 1.6,
-                    ),
+                  color: context.palette.textSecondary,
+                  height: 1.6,
+                ),
               ),
             ),
             const SizedBox(height: 40),

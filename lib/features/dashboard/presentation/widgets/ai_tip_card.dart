@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/info_card.dart';
@@ -24,13 +25,10 @@ class AiTipCard extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: context.palette.surface,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
-              Icons.lightbulb_rounded,
-              color: AppColors.primaryBlue,
-            ),
+            child: Icon(Icons.lightbulb_rounded, color: context.brand),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -46,9 +44,9 @@ class AiTipCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   tip,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: AppColors.darkText),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: context.palette.textPrimary,
+                  ),
                 ),
               ],
             ),

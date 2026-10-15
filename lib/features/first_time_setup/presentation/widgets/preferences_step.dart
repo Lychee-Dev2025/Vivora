@@ -1,6 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 import '../../../../core/widgets/primary_button.dart';
 
 class PreferencesStep extends StatefulWidget {
@@ -34,9 +34,10 @@ class _PreferencesStepState extends State<PreferencesStep> {
                   FadeInDown(
                     child: Text(
                       'App Preferences',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
                             fontWeight: FontWeight.w800,
-                            color: AppColors.darkText,
+                            color: context.palette.textPrimary,
                           ),
                     ),
                   ),
@@ -46,8 +47,8 @@ class _PreferencesStepState extends State<PreferencesStep> {
                     child: Text(
                       'Customize how Vivora interacts with you.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: AppColors.lightText,
-                          ),
+                        color: context.palette.textSecondary,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -80,7 +81,8 @@ class _PreferencesStepState extends State<PreferencesStep> {
                     subtitle: 'Get personalized advice based on your data.',
                     value: _analyticsSuggestions,
                     icon: Icons.auto_graph_rounded,
-                    onChanged: (val) => setState(() => _analyticsSuggestions = val),
+                    onChanged: (val) =>
+                        setState(() => _analyticsSuggestions = val),
                     delay: 500,
                   ),
                 ],
@@ -121,12 +123,14 @@ class _PreferencesStepState extends State<PreferencesStep> {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: context.palette.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.shadowColor.withValues(alpha: 0.1)),
+          border: Border.all(
+            color: context.palette.shadow.withValues(alpha: 0.1),
+          ),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor.withValues(alpha: 0.05),
+              color: context.palette.shadow.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -137,10 +141,10 @@ class _PreferencesStepState extends State<PreferencesStep> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.primaryBlue.withValues(alpha: 0.1),
+                color: context.brand.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: AppColors.primaryBlue, size: 24),
+              child: Icon(icon, color: context.brand, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -149,18 +153,18 @@ class _PreferencesStepState extends State<PreferencesStep> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkText,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.lightText,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -169,7 +173,7 @@ class _PreferencesStepState extends State<PreferencesStep> {
             Switch.adaptive(
               value: value,
               onChanged: onChanged,
-              activeColor: AppColors.primaryBlue,
+              activeThumbColor: context.brand,
             ),
           ],
         ),

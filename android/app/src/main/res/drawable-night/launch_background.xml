@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launch screen while the device is in dark mode: Vivora's dark background
+     (#0E1424) instead of white, so there is no white flash before Flutter
+     draws its first frame. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <color android:color="#FF0E1424" />
+    </item>
+</layer-list>

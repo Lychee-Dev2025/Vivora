@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:vivora/core/theme/vivora_palette.dart';
 
 import '../../../../core/constants/app_assets.dart';
-import '../../../../core/theme/app_colors.dart';
 
 class AuthHeader extends StatelessWidget {
   const AuthHeader({super.key});
@@ -18,10 +18,10 @@ class AuthHeader extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.white.withValues(alpha: 0.74),
-              boxShadow: const <BoxShadow>[
+              color: context.palette.surface.withValues(alpha: 0.8),
+              boxShadow: <BoxShadow>[
                 BoxShadow(
-                  color: AppColors.shadowColor,
+                  color: context.palette.shadow,
                   blurRadius: 22,
                   offset: Offset(0, 10),
                 ),
@@ -42,7 +42,7 @@ class AuthHeader extends StatelessWidget {
           'Build routines, track growth, and stay in control of your student life.',
           style: Theme.of(
             context,
-          ).textTheme.bodyLarge?.copyWith(color: AppColors.lightText),
+          ).textTheme.bodyLarge?.copyWith(color: context.palette.textSecondary),
         ),
       ],
     );
